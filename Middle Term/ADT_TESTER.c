@@ -33,12 +33,16 @@ void Circular_Queue_Menu(Queue* pCircular) {
 			printf("%d is dequeued\n", buffer);
 			break;
 		case 2:
-			printf("%d is front\n");
+			buffer = Circular_Queue_Front(pCircular);
+			printf("%d is front\n", buffer);
 			break;
 		case 3:
+			buffer = Circular_Queue_Rear(pCircular);
+			printf("%d is rear\n", buffer);
 			break;
 		case 4:
-
+			buffer = Circular_Queue_Count(pCircular);
+			printf("Size of Circular Queue is %d\n", buffer);
 			break;
 		case 5:
 			return;
@@ -58,6 +62,7 @@ void Queue_Menu(QueueData* pQueue) {
 
 		int flow = 0;
 		int buffer = 0;
+		scanf("%d", &flow);
 		switch (flow) {
 		case 0:
 			printf("Input Data : ");
@@ -70,10 +75,16 @@ void Queue_Menu(QueueData* pQueue) {
 			printf("%d is dequeued\n", buffer);
 			break;
 		case 2:
+			buffer = Queue_Front(pQueue);
+			printf("%d is front\n", buffer);
 			break;
 		case 3:
+			buffer = Queue_Rear(pQueue);
+			printf("%d is rear\n", buffer);
 			break;
 		case 4:
+			buffer = Queue_Count(pQueue);
+			printf("Size of Queue is %d\n", buffer);
 			break;
 		case 5:
 			return;

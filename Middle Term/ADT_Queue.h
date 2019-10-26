@@ -18,9 +18,10 @@ struct Queue { //Struct that save Queue data.
 
 typedef struct Queue QueueData;
 typedef struct node QueueNode;
-void Queue_Create(QueueData* pQueueData);
+void Queue_Create(QueueData** pQueueData);
 void Queue_Enqueue(QueueData* pQueueData, Element item);
 Element Queue_Dequeue(QueueData* pQueueData);
+int Queue_Count(QueueData* pQueueData);
 int Queue_Size(QueueData* pQueueData);
 bool Queue_Empty(QueueData* pQueueData);
 Element Queue_Front(QueueData* pQueueData);
@@ -78,6 +79,10 @@ Element Queue_Dequeue(QueueData* pQueueData) {
 	free(tempPtr);
 	pQueueData->size--; //Size decrease
 	return pDequeue_Value;
+}
+
+int Queue_Count(QueueData* pQueueData) {
+	return pQueueData->size;
 }
 
 int Queue_Size(QueueData* pQueueData) {

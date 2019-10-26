@@ -14,6 +14,9 @@ typedef struct {
 Queue* Circular_Queue_Create(int size);
 void Circular_Queue_Enque(Queue* pQueue, Element item);
 Element Circular_Queue_Deque(Queue* pQueue);
+Element Circular_Queue_Front(Queue* pQueue);
+Element Circular_Queue_Rear(Queue* pQueue);
+int Circular_Queue_Count(Queue* pQueue);
 bool Circular_Queue_isFull(Queue* pQueue);
 bool Circular_Queue_isEmpty(Queue* pQueue);
 void Circular_Queue_Destroy(Queue* pQueue);
@@ -54,6 +57,18 @@ Element Circular_Queue_Deque(Queue* pQueue) {
 		pQueue->front = (pQueue->front + 1) % pQueue->size;
 		return pQueue->queue[pQueue->front];
 	}
+}
+
+Element Circular_Queue_Front(Queue* pQueue) {
+	return pQueue->queue[pQueue->front];
+}
+
+Element Circular_Queue_Rear(Queue* pQueue) {
+	return pQueue->queue[pQueue->rear];
+}
+
+int Circular_Queue_Count(Queue* pQueue) {
+	return pQueue->size;
 }
 
 bool Circular_Queue_isFull(Queue* pQueue) {
