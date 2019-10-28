@@ -1,8 +1,10 @@
-#pragma once
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#pragma warning (disable:4996)
 
-typedef int Element;
+typedef char* Element;
 
 struct _node {
 	Element data;
@@ -16,9 +18,10 @@ typedef struct _data {
 	ListNode* pHead;
 	ListNode* pPos;
 	ListNode* pRear;
+	int (*compare)(Element argu1, Element argu2);
 }ListData;
 
-ListData* List_Create();
+ListData* List_Create(int (*compare)(Element argu1, Element argu2));
 void _List_Insert(ListData* pList, ListNode* pPre, Element data);
 bool _List_Search(ListData* pList, ListNode** ppPre, ListNode** ppLoc, Element data);
 void _List_Delete(ListData* pList, ListNode* pPre, ListNode* pLoc);
@@ -29,7 +32,12 @@ bool List_Traverse(ListData* pList, int fromWhere, Element* pDataOut);
 void List_Destroy(ListData* pList);
 int List_Count(ListData* pList);
 
-ListData* List_Create() {
+
+int compare_string(char* argu1, char* argu2) {
+	return (-1) * strcmp(argu1, argu2);
+}
+
+ListData* List_Create(int (*compare)(Element argu1, Element argu2)) {
 	ListData* pNew_List = (ListData*)malloc(sizeof(ListData));
 	if (pNew_List == NULL)
 		return NULL;
@@ -37,7 +45,7 @@ ListData* List_Create() {
 	pNew_List->pHead = NULL;
 	pNew_List->pPos = NULL;
 	pNew_List->pRear = NULL;
-
+	pNew_List->compare = compare;
 	return pNew_List;
 }
 
@@ -62,13 +70,32 @@ void _List_Insert(ListData* pList, ListNode* pPre, Element data) { //private fun
 }
 
 bool _List_Search(ListData* pList, ListNode** ppPre, ListNode** ppLoc, Element data) {
-	for (*ppPre = NULL, *ppLoc = pList->pHead; *ppLoc != NULL; *ppPre = *ppLoc, *ppLoc = (*ppLoc)->nextPtr) {
-		if ((*ppLoc)->data == data)
-			return true;
-		else if ((*ppLoc)->data > data)
-			break;
+#define COMPARE \
+((* pList->compare) (data, (*ppLoc)->data))
+#define COMPARE_LAST \
+ ( (* pList->compare) (data, pList->pRear->data))
+	int result;
+
+	*ppPre = NULL;
+	*ppLoc = pList->pHead;
+	if (pList->count == 0)
+		return false;
+
+	if (COMPARE_LAST > 0) {
+		*ppPre = pList->pRear;
+		*ppLoc = NULL;
+		return false;
 	}
-	return false;
+
+	while ((result = COMPARE) > 0) {
+		*ppPre = *ppLoc;
+		*ppLoc = (*ppLoc)->nextPtr;
+	}
+
+	if (result == 0)
+		return true;
+	else
+		return false;
 }
 
 void _List_Delete(ListData* pList, ListNode* pPre, ListNode* pLoc) {
@@ -107,7 +134,7 @@ bool List_Traverse(ListData* pList, int fromWhere, Element* pDataOut) {
 	/*
 	Should use like
 	int fromWhre = 0;
-	Element* pDataOut = (Element)malloc(sizeof(Element));
+	Element* pDataOut = (Element*)malloc(sizeof(Element));
 	while(List_Traverse(pListData, fromWhere++, pDataOut)
 		printf("%d", *pDataOut);
 	*/
@@ -139,3 +166,41 @@ void List_Destroy(ListData* pList) {
 int List_Count(ListData* pList) {
 	return pList->count;
 }
+
+int main() {
+	int fromWhere = 0;
+	Element* pDataOut = (Element*)malloc(sizeof(Element));
+	char** NAME_Arr;
+	char NAME_buffer[7] = { '\0', };
+	char IO_buffer[6] = { '\0', };
+	int how_many = 0;
+	scanf("%d", &how_many);
+
+	ListData* pList = NULL;
+	pList = List_Create(compare_string);
+	NAME_Arr = (char**)malloc(sizeof(char*) * how_many);
+	
+	for (int i = 0; i < how_many; i++) {
+		scanf("%s %s", NAME_buffer, IO_buffer);
+		if (!strcmp(IO_buffer, "enter")) {
+			NAME_Arr[i] = (char*)malloc(sizeof(NAME_buffer));
+			strcpy(NAME_Arr[i], NAME_buffer);
+			List_Add(pList, NAME_Arr[i]);
+		}
+		else if (!strcmp(IO_buffer, "leave"))
+			List_Remove(pList, NAME_buffer);
+	}
+
+	int counter = 0;
+	while (List_Traverse(pList, fromWhere++, pDataOut)) {
+		printf("%s\n", *pDataOut);
+		counter++;
+	}
+
+	for (int i = 0; i < counter; i++)
+		free(NAME_Arr[i]);
+
+	List_Destroy(pList);
+	return 0;
+}
+
