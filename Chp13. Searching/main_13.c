@@ -70,7 +70,7 @@ void buildHash(void* pList, size_t listSize, void* pHash, size_t* hashSize)
 		int hash_index = 200 * ((int*)pList)[i];
 		while (((Hash*)pHash)->hashTable[hash_index] != 0)
 			++hash_index;
-		((Hash*)pHash)->hashTable[hash_index];
+		((Hash*)pHash)->hashTable[hash_index] = ((int*)pList)[i];
 	}
 }
 
@@ -117,7 +117,6 @@ int main()
 	// Make pHash
 	hashSize = N * 200;
 	Hash* pHash = (Hash*)malloc(sizeof(Hash));
-	int temp[N * 2] = { 0, };
 
 	buildHash(arr, N, (void*)pHash, &hashSize);
 
