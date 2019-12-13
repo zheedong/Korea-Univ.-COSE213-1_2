@@ -13,9 +13,11 @@ typedef struct
 {
 	int count;
 	TREE_NODE* root;
+	int (*compare)(void* argu1, void* argu2);
 } BST_TREE;
 
 BST_TREE* bstCreate();
+BST_TREE* bstCreate_General(int (*compare)(void* argu1, void* argu2));
 void bstDestroy(BST_TREE* tree);
 static void _bstDestroy(TREE_NODE* root);
 
@@ -28,3 +30,6 @@ TREE_NODE* _bstFind(TREE_NODE* root, int key);
 
 bool bstEmpty(BST_TREE* tree);
 int bstCount(BST_TREE* tree);
+
+void bstTraverse(BST_TREE* tree, void(*process)(TREE_NODE* root));
+void _bstTraverse(TREE_NODE* root, void(*process)(TREE_NODE* root));
