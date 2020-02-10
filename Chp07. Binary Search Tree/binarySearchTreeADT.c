@@ -2,8 +2,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include "binarySearchTreeADT.h"
 #include "Stack_General_LinkedList.h"
+
+int compareInt(void* argu1, void* argu2)
+{
+	return *(int*)argu1 - *(int*)argu2;
+}
+
+int compareStr(void* argu1, void* argu2)
+{
+	return strcmp((char*)argu1, (char*)argu2);
+}
 
 BST_TREE* bstCreate()
 {
@@ -52,7 +63,7 @@ void _bstDestroy(TREE_NODE* root)
 }
 
 
-bool bstInsert(BST_TREE* tree, int data)
+bool bstInsert(BST_TREE* tree, Element data)
 {
 	TREE_NODE* newNode;
 	newNode = (TREE_NODE*)malloc(sizeof(TREE_NODE));
@@ -71,18 +82,18 @@ bool bstInsert(BST_TREE* tree, int data)
 
 TREE_NODE* _bstAdd(TREE_NODE* root, TREE_NODE* newNode)
 {
-	if (root == NULL)
+	if (root == NULL) //Basic Case : current BST is an empty tree.
 		return newNode;
 
-	if (newNode->data < root->data)
-		root->left = _bstAdd(root->left, newNode);
+	if (newNode->data < root->data) //General Case
+		root->left = _bstAdd(root->left, newNode); //If the new node is smaller than root of BST.
 	else
-		root->right = _bstAdd(root->right, newNode);
+		root->right = _bstAdd(root->right, newNode); //If the new node is greater than root of BST.
 
 	return root;
 }
 
-bool bstDelete(BST_TREE* tree, int key)
+bool bstDelete(BST_TREE* tree, Element key)
 {
 	bool flag;
 	_bstDel(tree->root, key, &flag);
@@ -90,53 +101,55 @@ bool bstDelete(BST_TREE* tree, int key)
 	return flag;
 }
 
-TREE_NODE* _bstDel(TREE_NODE* root, int data, bool* success)
+TREE_NODE* _bstDel(TREE_NODE* root, Element data, bool* success)
 {
-	if (root == NULL)
+	if (root == NULL) //ERROR : empty BST
 	{
 		*success = false;
 		return root;
 	}
 
-	if (data < root->data)
-		root->left = _bstDel(root->left, data, success);
-	else if (data > root->data)
+	if (data < root->data) //If key data is smaller than root->data.
+		root->left = _bstDel(root->left, data, success); //Recursive call.
+	else if (data > root->data) //If key data is greater than root->data.
 		root->right = _bstDel(root->right, data, success);
-	else
+	else //data == root->data
 	{	// root is the node to delete 
 		TREE_NODE* delPtr = NULL;
 		*success = true;
 
 		if (!root->right)
-		{ // root has no child or only left subtree 
-			delPtr = root; root = root->left;
-			free(delPtr); return root;
+		{ // CASE 1 : root has no child or CASE 2 : only left subtree 
+			delPtr = root;
+			root = root->left; // In CASE 1, root->letf is NULL.
+			free(delPtr);
+			return root;
 		}
 		else if (!root->left)
-		{ // root has only right subtree 
+		{ // CASE 3 : root has only right subtree 
 			delPtr = root;
 			root = root->right;
 			free(delPtr);
 			return root;
 		}
 		else
-		{ // root has both left and right children 
-		  // find the largest among the left subtree 
-			for (delPtr = root->left; delPtr->right != NULL; delPtr = delPtr->right);
-			root->data = delPtr->data;
-			root->left = _bstDel(root->left, delPtr->data, success);
+		{ // CASE 4 : root has both left and right children 
+			for (delPtr = root->left; delPtr->right != NULL; delPtr = delPtr->right); // find the largest among the left subtree 
+			root->data = delPtr->data; // Change root->data to Largest in root->left subtree.
+			root->left = _bstDel(root->left, delPtr->data, success); // Input left subtree, and return left subtree biggest one deleted.
 		}
 	}
 	return root;
 }
 
-TREE_NODE* bstSearch(BST_TREE* tree, int key)
+TREE_NODE* bstSearch(BST_TREE* tree, Element key)
 {
 	return _bstFind(tree->root, key);
 }
 
-TREE_NODE* _bstFind(TREE_NODE* root, int key)
+TREE_NODE* _bstFind(TREE_NODE* root, Element key)
 {
+	/*
 	//Recursive way
 	if (!root)
 		return NULL;
@@ -147,8 +160,8 @@ TREE_NODE* _bstFind(TREE_NODE* root, int key)
 		return _bstFind(root->right, key);
 	else
 		return root;
+	*/
 
-	/*
 	//Iterative way
 	while (root != NULL)
 	{
@@ -159,7 +172,7 @@ TREE_NODE* _bstFind(TREE_NODE* root, int key)
 		else if (key > root->data)
 			root = root->right;
 	}
-	*/
+	return root;
 }
 
 bool bstEmpty(BST_TREE* tree)
@@ -177,6 +190,7 @@ int bstCount(BST_TREE* tree)
 
 void bstTraverse(BST_TREE* tree, void(*process)(TREE_NODE* root))
 {
+	//NOTE! Inorder traversal of a BST produces a sorted list.
 	_bstTraverse(tree->root, process);
 }
 
@@ -184,6 +198,7 @@ void _bstTraverse(TREE_NODE* root, void(*process)(TREE_NODE* root))
 {
 	/*
 	//Recursive
+	//Inorder
 	if (root)
 	{
 		_bstTraverse(root->left, process);
@@ -193,32 +208,71 @@ void _bstTraverse(TREE_NODE* root, void(*process)(TREE_NODE* root))
 	*/
 
 	//Iterative by STACK
+	//Inorder
 	StackData* stack = NULL;
 	TREE_NODE* current = root;
 	bool done = false;
 
-	if (root == NULL)
+	if (root == NULL) //ERROR : Empty BST
 		return;
-	Stack_Create(&stack);
+	Stack_Create(&stack); //Stack is created.
 
-	while (!done)
+	while (!done) //Check flag.
 	{
-		if (current != NULL)
+		if (current != NULL) //Current is NOT empty.
 		{
-			Stack_Push(stack, current);
-			current = current->left;
+			Stack_Push(stack, current); //Push it!
+			current = current->left; //Change current to current->left.
 		}
-		else
+		else //Current is NULL.
 		{
-			if (!Stack_Empty(stack))
+			if (!Stack_Empty(stack)) //If Stack is not Empty
 			{
 				current = Stack_Pop(stack);
-				process(current);
-				current = current->right;
+				process(current); //Print something
+				current = current->right; //Change current to 
 			}
 			else
 				done = true;
 		}
 	}
 	Stack_Destroy(stack);
+}
+
+void* _retrieve(BST_TREE* tree, void* dataPtr, TREE_NODE* root)
+{
+	if (root) {
+		if (tree->compare(dataPtr, root->data) < 0)
+			return _retrieve(tree, dataPtr, root->left);
+		else if (tree->compare(dataPtr, root->data) > 0)
+			return _retrieve(tree, dataPtr, root->right);
+		else// Found equal key
+			return root->data;
+	} // if root
+	else
+		return NULL; // Data not in tree
+}// _retrieve
+
+void* BST_Retrieve(BST_TREE* tree, void* keyPtr)
+{
+	if (tree->root)
+		return _retrieve(tree, keyPtr, tree->root);
+	else
+		return NULL;
+}// BST_Retrieve
+
+TREE_NODE* FindSmallestBST(TREE_NODE* root)
+{
+	if (root != NULL && root->left != NULL)
+		return FindSmallestBST(root->left);
+	else
+		return root;
+}
+
+TREE_NODE* FindLargestBST(TREE_NODE* root)
+{
+	if (root != NULL && root->right != NULL)
+		return FindLargestBST(root->right);
+	else
+		return root;
 }

@@ -1,10 +1,7 @@
 #pragma once
 #include <stdio.h>
 #include <stdlib.h>
-#define TRUE 1
-#define FALSE 0
-
-typedef int BOOL;
+#include <stdbool.h>
 
 struct node { //Stack node.
 	void* dataPtr; //General void pointer. In main function, call as pointer and malloc.
@@ -49,7 +46,7 @@ void* Stack_Pop(StackData* pStackData) {
 	StackNode* tempPtr;
 	void* pPop_Value;
 	if (pStackData->size == 0) //Stack is empty.
-		return;
+		return NULL;
 	tempPtr = pStackData->topPtr; //Save temp to free.
 	pPop_Value = (pStackData->topPtr)->dataPtr; //Save pointer of data to Pop_Value
 	pStackData->topPtr = (pStackData->topPtr)->nextPtr; //Change the topPtr.
@@ -62,12 +59,12 @@ int Stack_Size(StackData* pStackData) {
 	return pStackData->size;
 }
 
-BOOL Stack_Empty(StackData* pStackData) { //return 1 when stack is empty.
+bool Stack_Empty(StackData* pStackData) { //return 1 when stack is empty.
 	if (pStackData->size == 0) {
-		return TRUE;
+		return true;
 	}
 	else {
-		return FALSE;
+		return false;
 	}
 }
 

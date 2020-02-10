@@ -1,10 +1,11 @@
 #pragma once
 #include <stdio.h>
 #include <stdbool.h>
+#define Element int
 
 typedef struct treeNode
 {
-	int data;
+	Element data;
 	struct treeNode* left;
 	struct treeNode* right;
 } TREE_NODE;
@@ -15,6 +16,9 @@ typedef struct
 	TREE_NODE* root;
 	int (*compare)(void* argu1, void* argu2);
 } BST_TREE;
+
+int compareInt(void* argu1, void* argu2);
+int compareStr(void* argu1, void* argu2);
 
 BST_TREE* bstCreate();
 BST_TREE* bstCreate_General(int (*compare)(void* argu1, void* argu2));
@@ -33,3 +37,9 @@ int bstCount(BST_TREE* tree);
 
 void bstTraverse(BST_TREE* tree, void(*process)(TREE_NODE* root));
 void _bstTraverse(TREE_NODE* root, void(*process)(TREE_NODE* root));
+
+void* _retrieve(BST_TREE* tree, void* dataPtr, TREE_NODE* root);
+void* BST_Retrieve(BST_TREE* tree, void* keyPtr);
+
+TREE_NODE* FindSmallestBST(TREE_NODE* root);
+TREE_NODE* FindLargestBST(TREE_NODE* root);
